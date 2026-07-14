@@ -67,6 +67,15 @@
         <div class="flex-1 flex overflow-hidden">
             <!-- Left Pane - Editor -->
             <div class="w-1/2 flex flex-col border-r border-slate-800">
+                <!-- Formatting Toolbar -->
+                <div class="bg-gray-800 border-b border-slate-700 px-3 py-2 flex gap-2 flex-wrap">
+                    <button data-format="bold" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm font-medium transition-colors" title="Bold (Ctrl+B)">**B**</button>
+                    <button data-format="italic" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm italic transition-colors" title="Italic (Ctrl+I)">*I*</button>
+                    <button data-format="h1" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm font-bold transition-colors" title="Heading 1">H1</button>
+                    <button data-format="h2" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm font-semibold transition-colors" title="Heading 2">H2</button>
+                    <button data-format="link" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm transition-colors" title="Link">🔗</button>
+                    <button data-format="list" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm transition-colors" title="Bullet List">• List</button>
+                </div>
                 <textarea 
                     id="markdown-editor" 
                     class="flex-1 bg-slate-950 text-slate-100 p-6 font-mono text-sm resize-none focus:outline-none"
@@ -183,6 +192,7 @@
         const closeModalBtn = document.getElementById('close-modal-btn');
         const themeSelector = document.getElementById('theme-selector');
         const previewPane = document.getElementById('preview-pane');
+        const formatButtons = document.querySelectorAll('.format-btn');
         
         // Debounce function
         function debounce(func, wait) {
@@ -210,6 +220,62 @@
             // Remove existing background classes and add new one
             previewPane.classList.remove('bg-slate-950', 'bg-gray-900', 'bg-blue-950');
             previewPane.classList.add(theme);
+        }
+        
+        // Insert markdown syntax at cursor position or wrap selected text
+        function insertMarkdown(format) {
+            const textarea = markdownEditor;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            
+            let before = '';
+            let after = '';
+            let placeholder = '';
+            
+            switch (format) {
+                case 'bold':
+                    before = '**';
+                    after = '**';
+                    placeholder = 'bold text';
+                    break;
+                case 'italic':
+                    before = '*';
+                    after = '*';
+                    placeholder = 'italic text';
+                    break;
+                case 'h1':
+                    before = '# ';
+                    after = '';
+                    placeholder = 'Heading 1';
+                    break;
+                case 'h2':
+                    before = '## ';
+                    after = '';
+                    placeholder = 'Heading 2';
+                    break;
+                case 'link':
+                    before = '[';
+                    after = '](url)';
+                    placeholder = 'link text';
+                    break;
+                case 'list':
+                    before = '- ';
+                    after = '';
+                    placeholder = 'list item';
+                    break;
+            }
+            
+            const newText = textarea.value.substring(0, start) + before + (selectedText || placeholder) + after + textarea.value.substring(end);
+            textarea.value = newText;
+            
+            // Set cursor position after the inserted text
+            const newCursorPos = start + before.length + (selectedText || placeholder).length + after.length;
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+            textarea.focus();
+            
+            // Update preview immediately
+            updatePreview();
         }
         
         // Debounced preview update
@@ -327,6 +393,19 @@
         openUrlBtn.addEventListener('click', openUrl);
         closeModalBtn.addEventListener('click', closeModal);
         
+        // Keyboard shortcuts for formatting
+        markdownEditor.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'b') {
+                    e.preventDefault();
+                    insertMarkdown('bold');
+                } else if (e.key === 'i') {
+                    e.preventDefault();
+                    insertMarkdown('italic');
+                }
+            }
+        });
+        
         // Close modal on outside click
         urlModal.addEventListener('click', (e) => {
             if (e.target === urlModal) {
@@ -341,10 +420,24 @@
             }
         });
         
+        // Configure marked.js to enable breaks
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        });
+        
         // Initialize
         routeMode();
         // Initialize preview theme
         updatePreviewTheme();
+        
+        // Format button event listeners
+        formatButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const format = btn.dataset.format;
+                insertMarkdown(format);
+            });
+        });
     </script>
 </body>
 </html>
