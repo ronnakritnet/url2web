@@ -219,6 +219,29 @@
             // Remove existing background classes and add new one
             previewPane.classList.remove('bg-slate-950', 'bg-gray-900', 'bg-blue-950');
             previewPane.classList.add(theme);
+            // Auto-save theme to localStorage
+            localStorage.setItem('url2web_draft_theme', theme);
+        }
+        
+        // Save draft to localStorage
+        function saveDraft() {
+            localStorage.setItem('url2web_draft_text', markdownEditor.value);
+        }
+        
+        // Restore draft from localStorage
+        function restoreDraft() {
+            const savedText = localStorage.getItem('url2web_draft_text');
+            const savedTheme = localStorage.getItem('url2web_draft_theme');
+            
+            if (savedText) {
+                markdownEditor.value = savedText;
+                updatePreview();
+            }
+            
+            if (savedTheme) {
+                themeSelector.value = savedTheme;
+                updatePreviewTheme();
+            }
         }
         
         // Insert markdown syntax at cursor position or wrap selected text
@@ -385,7 +408,10 @@
         }
         
         // Event listeners
-        markdownEditor.addEventListener('input', debouncedUpdatePreview);
+        markdownEditor.addEventListener('input', () => {
+            debouncedUpdatePreview();
+            saveDraft();
+        });
         themeSelector.addEventListener('change', updatePreviewTheme);
         generateUrlBtn.addEventListener('click', generateUrl);
         copyUrlBtn.addEventListener('click', copyUrl);
@@ -429,6 +455,10 @@
         routeMode();
         // Initialize preview theme
         updatePreviewTheme();
+        // Restore draft from localStorage if in editor mode
+        if (!window.location.hash || window.location.hash.length <= 1) {
+            restoreDraft();
+        }
         
         // Format button event listeners
         formatButtons.forEach(btn => {
