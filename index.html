@@ -47,35 +47,37 @@
     <div id="editor-mode" class="hidden h-screen flex flex-col">
         <!-- Header -->
         <header class="bg-gray-900 border-b border-slate-800 px-6 py-4">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h1 class="text-xl font-semibold text-green-400 font-mono">URL2Web Editor</h1>
-                    <p class="text-sm text-slate-400 mt-1">Write Markdown, generate a shareable URL</p>
-                </div>
-                <div class="flex flex-col items-end">
-                    <label class="text-sm text-slate-400 mb-2">Background Theme</label>
-                    <select id="theme-selector" class="bg-slate-950 text-slate-100 px-3 py-2 rounded-lg border border-slate-700 text-sm focus:outline-none focus:border-blue-500">
-                        <option value="bg-slate-950" selected>Default Dark</option>
-                        <option value="bg-gray-900">Deep Gray</option>
-                        <option value="bg-blue-950">Midnight Blue</option>
-                    </select>
-                </div>
+            <div>
+                <h1 class="text-xl font-bold text-green-400 font-mono tracking-tight">
+                    URL2Web<span class="text-sm font-normal lowercase">.ronnakrit.net</span>
+                </h1>
             </div>
         </header>
+        
+        <!-- Full-Width Formatting Toolbar -->
+        <div class="bg-gray-800 border-b border-slate-700 px-4 py-2 flex justify-between items-center">
+            <div class="flex gap-2 flex-wrap">
+                <button data-format="bold" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm font-medium transition-colors" title="Bold (Ctrl+B)">**B**</button>
+                <button data-format="italic" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm italic transition-colors" title="Italic (Ctrl+I)">*I*</button>
+                <button data-format="h1" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm font-bold transition-colors" title="Heading 1">H1</button>
+                <button data-format="h2" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm font-semibold transition-colors" title="Heading 2">H2</button>
+                <button data-format="link" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm transition-colors" title="Link">🔗</button>
+                <button data-format="list" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm transition-colors" title="Bullet List">• List</button>
+            </div>
+            <div class="flex items-center gap-3">
+                <label class="text-sm text-slate-400">Background Theme</label>
+                <select id="theme-selector" class="bg-slate-950 text-slate-100 px-3 py-2 rounded-lg border border-slate-700 text-sm focus:outline-none focus:border-blue-500">
+                    <option value="bg-slate-950" selected>Default Dark</option>
+                    <option value="bg-gray-900">Deep Gray</option>
+                    <option value="bg-blue-950">Midnight Blue</option>
+                </select>
+            </div>
+        </div>
         
         <!-- Split View -->
         <div class="flex-1 flex overflow-hidden">
             <!-- Left Pane - Editor -->
             <div class="w-1/2 flex flex-col border-r border-slate-800">
-                <!-- Formatting Toolbar -->
-                <div class="bg-gray-800 border-b border-slate-700 px-3 py-2 flex gap-2 flex-wrap">
-                    <button data-format="bold" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm font-medium transition-colors" title="Bold (Ctrl+B)">**B**</button>
-                    <button data-format="italic" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm italic transition-colors" title="Italic (Ctrl+I)">*I*</button>
-                    <button data-format="h1" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm font-bold transition-colors" title="Heading 1">H1</button>
-                    <button data-format="h2" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm font-semibold transition-colors" title="Heading 2">H2</button>
-                    <button data-format="link" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm transition-colors" title="Link">🔗</button>
-                    <button data-format="list" class="format-btn bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-sm transition-colors" title="Bullet List">• List</button>
-                </div>
                 <textarea 
                     id="markdown-editor" 
                     class="flex-1 bg-slate-950 text-slate-100 p-6 font-mono text-sm resize-none focus:outline-none"
