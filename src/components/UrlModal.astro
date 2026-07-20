@@ -1,0 +1,108 @@
+---
+interface Props {
+  url: string;
+  isOpen: boolean;
+}
+
+const { url, isOpen } = Astro.props;
+---
+
+<div id="url-modal" class={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 ${isOpen ? '' : 'hidden'}`}>
+  <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 max-w-2xl w-full mx-4 shadow-2xl">
+    <h2 class="text-xl font-semibold text-slate-100 mb-4">Your Shareable URL</h2>
+    <div class="flex gap-2 mb-4">
+      <input
+        type="text"
+        id="generated-url"
+        class="flex-1 bg-slate-950 text-slate-100 px-4 py-2 rounded-lg border border-slate-700 font-mono text-sm"
+        readonly
+        value={url}
+      />
+      <button
+        id="copy-url-btn"
+        class="bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-700 hover:text-white transition-colors rounded px-3 py-1.5 text-sm font-mono"
+      >
+        Copy
+      </button>
+    </div>
+    <p class="text-sm text-slate-400 mb-4">
+      This URL contains your compressed Markdown content. Share it with anyone to let them view your document.
+    </p>
+    <div class="flex justify-end gap-3">
+      <button
+        id="open-url-btn"
+        class="bg-green-600 text-white hover:bg-green-500 font-mono transition-colors rounded px-4 py-2 text-sm"
+      >
+        Open URL
+      </button>
+      <button
+        id="close-modal-btn"
+        class="bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-700 hover:text-white transition-colors rounded px-3 py-1.5 text-sm font-mono"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const urlModal = document.getElementById('url-modal');
+  const generatedUrl = document.getElementById('generated-url') as HTMLInputElement;
+  const copyUrlBtn = document.getElementById('copy-url-btn');
+  const openUrlBtn = document.getElementById('open-url-btn');
+  const closeModalBtn = document.getElementById('close-modal-btn');
+
+  function closeModal() {
+    if (urlModal) {
+      urlModal.classList.add('hidden');
+    }
+  }
+
+  async function copyUrl() {
+    if (!generatedUrl) return;
+    try {
+      await navigator.clipboard.writeText(generatedUrl.value);
+      if (copyUrlBtn) {
+        copyUrlBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          if (copyUrlBtn) copyUrlBtn.textContent = 'Copy';
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Copy failed:', error);
+      alert('Failed to copy URL. Please copy it manually.');
+    }
+  }
+
+  function openUrl() {
+    if (generatedUrl) {
+      window.open(generatedUrl.value, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeModal);
+  }
+
+  if (copyUrlBtn) {
+    copyUrlBtn.addEventListener('click', copyUrl);
+  }
+
+  if (openUrlBtn) {
+    openUrlBtn.addEventListener('click', openUrl);
+  }
+
+  if (urlModal) {
+    urlModal.addEventListener('click', (e) => {
+      if (e.target === urlModal) {
+        closeModal();
+      }
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && urlModal && !urlModal.classList.contains('hidden')) {
+      closeModal();
+    }
+  });
+</script>

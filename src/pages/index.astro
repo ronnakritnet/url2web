@@ -1,0 +1,97 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Editor from '../components/Editor.astro';
+import Render from '../components/Render.astro';
+import Error from '../components/Error.astro';
+---
+
+<Layout title="URL2Web - Markdown to URL">
+  <!-- Editor Mode -->
+  <div id="editor-mode">
+    <Editor />
+  </div>
+  
+  <!-- Render Mode -->
+  <div id="render-mode" class="hidden">
+    <Render />
+  </div>
+  
+  <!-- Error Mode -->
+  <div id="error-mode" class="hidden">
+    <Error />
+  </div>
+</Layout>
+
+<script>
+  import { decompress } from '../utils/compression';
+  import { parse } from '../utils/markdown';
+
+  const editorMode = document.getElementById('editor-mode') as HTMLElement | null;
+  const renderMode = document.getElementById('render-mode') as HTMLElement | null;
+  const errorMode = document.getElementById('error-mode') as HTMLElement | null;
+  const renderedContent = document.getElementById('rendered-content') as HTMLElement | null;
+
+  function showMode(mode: string) {
+    if (!editorMode || !renderMode || !errorMode) return;
+    
+    editorMode.classList.add('hidden');
+    renderMode.classList.add('hidden');
+    errorMode.classList.add('hidden');
+    
+    if (mode === 'editor') {
+      editorMode.classList.remove('hidden');
+    } else if (mode === 'render') {
+      renderMode.classList.remove('hidden');
+    } else if (mode === 'error') {
+      errorMode.classList.remove('hidden');
+    }
+  }
+
+  function routeMode() {
+    if (typeof window === 'undefined') return;
+    
+    const hash = window.location.hash;
+    
+    if (hash && hash.length > 1) {
+      try {
+        const compressed = hash.substring(1);
+        const decompressed = decompress(compressed);
+        
+        if (!decompressed) {
+          throw new Error('Decompression failed');
+        }
+        
+        let payload: { theme?: string; markdown: string };
+        try {
+          payload = JSON.parse(decompressed);
+        } catch (e) {
+          payload = { theme: 'bg-slate-950', markdown: decompressed };
+        }
+        
+        if (payload.theme && document.body) {
+          document.body.className = `${payload.theme} text-slate-100 min-h-screen`;
+        }
+        
+        if (renderedContent) {
+          renderedContent.innerHTML = parse(payload.markdown);
+        }
+        
+        showMode('render');
+      } catch (error) {
+        console.error('Decompression error:', error);
+        showMode('error');
+      }
+    } else {
+      showMode('editor');
+    }
+  }
+
+  // Initialize immediately on script load
+  if (typeof window !== 'undefined') {
+    routeMode();
+    
+    window.addEventListener('hashchange', () => {
+      routeMode();
+    });
+  }
+</script>
